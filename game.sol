@@ -20,35 +20,26 @@ contract Dice {
     */ 
     bool public result;
 
-    /**
-    * @notice function to add funds to a balance to play
-    * @param x of funds to be added to balance variable
-    */
-    function addBalance( uint x ) public{
-       
-        // if given number is not greater than zero, function will not continue
-        require(x > 0, "Number must be Greater than zero ");
-
-        // adding specified funds to a balance
-        balance += x;
+    modifier greaterThanZero(uint _input){
+        require(_input > 0,"Number must be Greater than zero" );
+        _;
     }
 
     /**
-    * @notice view current balance
-    * @return user's balance 
+    * @notice function to add funds to a balance to play
+    * @param _balance of funds to be added to balance variable
     */
-    function viewBalance() public view returns( uint ){
-        return balance;
+    function addBalance( uint _balance ) public greaterThanZero(_balance){
+        // adding specified funds to a balance
+        balance += _balance;
     }
 
     /**
     * @notice view current balance
     * @param bet_size is a size of bet to start playing
     */
-    function startGame(uint bet_size) public{
-        require(balance > 0 && balance <= bet_size, "Not enough balance to play !");
-
-        require(bet_size > 0, "Bet size must be greater than zero !");
+    function startGame(uint bet_size) public greaterThanZero(bet_size){
+        require(balance >= bet_size, "Not enough balance to play !");
 
         // if a roll number is even the result is true
         result = roll() % 2 == 0;
@@ -65,6 +56,15 @@ contract Dice {
     function roll() public view returns (uint) {
         return uint(keccak256(abi.encodePacked(this, block.timestamp))) % 6 + 1;
     }
+
+    /**
+    * @notice view current balance
+    * @return user's balance 
+    */
+    function viewBalance() public view returns( uint ){
+        return balance;
+    }
+
 
     /**
     * @return string result of the game
